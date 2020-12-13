@@ -50,13 +50,13 @@ def test(model, val_loader):
     return accuracy
 
 
-def main(device_id, args):
-    rank = args.nr * args.gpus + device_id
+def worker(device_id, args):
+    rank_id = args.nr * args.gpus + device_id
     dist.init_process_group(
         backend='nccl',
         init_method='env://',
         world_size=args.world_size,
-        rank=rank
+        rank=rank_id
     )
     torch.cuda.set_device(device_id)
 
@@ -65,7 +65,7 @@ def main(device_id, args):
     train_sampler = torch.utils.data.distributed.DistributedSampler(
         train_set,
         num_replicas=args.world_size,
-        rank=rank,
+        rank=rank_id,
         shuffle=True
     )
     train_loader = torch.utils.data.DataLoader(dataset=train_set, batch_size=args.batch_size,
@@ -154,4 +154,4 @@ if __name__ == '__main__':
     args.batch_size = args.batch_size
     os.environ['MASTER_ADDR'] = 'localhost'
     os.environ['MASTER_PORT'] = '8080'
-    mp.spawn(main, nprocs=args.gpus, args=(args,))
+    mp.spawn(worker, nprocs=args.gpus, args=(args,))
