@@ -20,3 +20,8 @@ Distributed training using two GPUs:
 ```shell script
 CUDA_VISIBLE_DEVICES=0,1 python train_ddp.py -g 2
 ```
+
+Distributed training using two GPUs with Mixed Precision:
+```shell script
+CUDA_VISIBLE_DEVICES=0,1 python train_ddp_mp.py -g 2
+```
